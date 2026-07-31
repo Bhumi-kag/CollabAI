@@ -1,0 +1,83 @@
+package com.collabai.backend.service;
+
+import com.collabai.backend.dto.InviteMemberRequest;
+import com.collabai.backend.dto.WorkspaceMemberResponse;
+import com.collabai.backend.entity.User;
+import com.collabai.backend.entity.Workspace;
+import com.collabai.backend.entity.WorkspaceMember;
+import com.collabai.backend.enums.WorkspaceRole;
+import com.collabai.backend.exception.ResourceNotFoundException;
+import com.collabai.backend.repository.UserRepository;
+import com.collabai.backend.repository.WorkspaceMemberRepository;
+import com.collabai.backend.repository.WorkspaceRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class WorkspaceMemberService {
+
+    private final WorkspaceMemberRepository workspaceMemberRepository;
+    private final WorkspaceRepository workspaceRepository;
+    private final UserRepository userRepository;
+
+    public WorkspaceMemberService(
+            WorkspaceMemberRepository workspaceMemberRepository,
+            WorkspaceRepository workspaceRepository,
+            UserRepository userRepository) {
+
+        this.workspaceMemberRepository = workspaceMemberRepository;
+        this.workspaceRepository = workspaceRepository;
+        this.userRepository = userRepository;
+    }
+
+    // Invite Member
+    public WorkspaceMemberResponse inviteMember(InviteMemberRequest request) {
+
+        Workspace workspace = workspaceRepository.findById(request.getWorkspaceId())
+                .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        workspaceMemberRepository
+                .findByWorkspaceIdAndUserId(workspace.getId(), user.getId())
+                .ifPresent(member -> {
+                    throw new RuntimeException("User is already a member of this workspace");
+                });
+
+        WorkspaceMember member = new WorkspaceMember();
+
+        member.setWorkspace(workspace);
+        member.setUser(user);
+
+        // Convert String to Enum
+        member.setRole(WorkspaceRole.valueOf(request.getRole()));
+
+        WorkspaceMember savedMember = workspaceMemberRepository.save(member);
+
+        return new WorkspaceMemberResponse(
+                savedMember.getId(),
+                savedMember.getUser().getFullName(),
+                savedMember.getUser().getEmail(),
+                savedMember.getRole().name()
+        );
+    }
+
+    // Get Members
+    public List<WorkspaceMemberResponse> getWorkspaceMembers(Long workspaceId) {
+
+        List<WorkspaceMember> members =
+                workspaceMemberRepository.findByWorkspaceId(workspaceId);
+
+        return members.stream()
+                .map(member -> new WorkspaceMemberResponse(
+                        member.getId(),
+                        member.getUser().getFullName(),
+                        member.getUser().getEmail(),
+                        member.getRole().name()
+                ))
+                .collect(Collectors.toList());
+    }
+}
