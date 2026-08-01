@@ -10,6 +10,7 @@ import com.collabai.backend.exception.ResourceNotFoundException;
 import com.collabai.backend.repository.UserRepository;
 import com.collabai.backend.repository.WorkspaceMemberRepository;
 import com.collabai.backend.repository.WorkspaceRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,22 +22,33 @@ public class WorkspaceMemberService {
     private final WorkspaceMemberRepository workspaceMemberRepository;
     private final WorkspaceRepository workspaceRepository;
     private final UserRepository userRepository;
+    private final PermissionService permissionService;
 
     public WorkspaceMemberService(
             WorkspaceMemberRepository workspaceMemberRepository,
             WorkspaceRepository workspaceRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            PermissionService permissionService) {
 
         this.workspaceMemberRepository = workspaceMemberRepository;
         this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
+        this.permissionService = permissionService;
     }
 
     // Invite Member
-    public WorkspaceMemberResponse inviteMember(InviteMemberRequest request) {
+    public WorkspaceMemberResponse inviteMember(
+            InviteMemberRequest request,
+            Authentication authentication) {
 
         Workspace workspace = workspaceRepository.findById(request.getWorkspaceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
+
+        // Only OWNER or ADMIN can invite members
+        permissionService.checkOwnerOrAdmin(
+                workspace.getId(),
+                authentication
+        );
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -51,8 +63,6 @@ public class WorkspaceMemberService {
 
         member.setWorkspace(workspace);
         member.setUser(user);
-
-        // Convert String to Enum
         member.setRole(WorkspaceRole.valueOf(request.getRole()));
 
         WorkspaceMember savedMember = workspaceMemberRepository.save(member);

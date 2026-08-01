@@ -23,14 +23,17 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final WorkspaceRepository workspaceRepository;
     private final UserRepository userRepository;
+    private final ActivityService activityService;
 
     public TaskService(TaskRepository taskRepository,
                        WorkspaceRepository workspaceRepository,
-                       UserRepository userRepository) {
+                       UserRepository userRepository,
+                       ActivityService activityService) {
 
         this.taskRepository = taskRepository;
         this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
+        this.activityService = activityService;
     }
 
     // Create Task
@@ -50,6 +53,13 @@ public class TaskService {
         task.setAssignedTo(null);
 
         Task savedTask = taskRepository.save(task);
+
+        // Log Activity
+        activityService.logActivity(
+                workspace,
+                "Task Created: " + savedTask.getTitle(),
+                workspace.getCreatedBy().getFullName()
+        );
 
         return new TaskResponse(
                 savedTask.getId(),
@@ -98,6 +108,13 @@ public class TaskService {
 
         Task updatedTask = taskRepository.save(task);
 
+        // Log Activity
+        activityService.logActivity(
+                updatedTask.getWorkspace(),
+                "Task Assigned: " + updatedTask.getTitle() + " → " + user.getFullName(),
+                user.getFullName()
+        );
+
         return new TaskResponse(
                 updatedTask.getId(),
                 updatedTask.getTitle(),
@@ -120,6 +137,15 @@ public class TaskService {
         task.setStatus(TaskStatus.valueOf(request.getStatus()));
 
         Task updatedTask = taskRepository.save(task);
+
+        // Log Activity
+        activityService.logActivity(
+                updatedTask.getWorkspace(),
+                "Task Status Changed to " + updatedTask.getStatus(),
+                updatedTask.getAssignedTo() != null
+                        ? updatedTask.getAssignedTo().getFullName()
+                        : "System"
+        );
 
         return new TaskResponse(
                 updatedTask.getId(),
