@@ -10,3 +10,4 @@ public interface WorkspaceRepository extends JpaRepository<Workspace, Long> {
     List<Workspace> findByCreatedById(Long userId);
 
 }
+

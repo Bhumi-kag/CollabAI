@@ -24,10 +24,11 @@ public class WorkspaceService {
     private final WorkspaceMemberRepository workspaceMemberRepository;
     private final ActivityService activityService;
 
-    public WorkspaceService(WorkspaceRepository workspaceRepository,
-                            UserRepository userRepository,
-                            WorkspaceMemberRepository workspaceMemberRepository,
-                            ActivityService activityService) {
+    public WorkspaceService(
+            WorkspaceRepository workspaceRepository,
+            UserRepository userRepository,
+            WorkspaceMemberRepository workspaceMemberRepository,
+            ActivityService activityService) {
 
         this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
@@ -35,14 +36,19 @@ public class WorkspaceService {
         this.activityService = activityService;
     }
 
+    // ==========================
     // Create Workspace
-    public WorkspaceResponse createWorkspace(CreateWorkspaceRequest request,
-                                             Authentication authentication) {
+    // ==========================
+
+    public WorkspaceResponse createWorkspace(
+            CreateWorkspaceRequest request,
+            Authentication authentication) {
 
         String email = authentication.getName();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         Workspace workspace = new Workspace();
 
@@ -52,7 +58,7 @@ public class WorkspaceService {
 
         Workspace savedWorkspace = workspaceRepository.save(workspace);
 
-        // Automatically add creator as OWNER
+        // Add creator as OWNER
         WorkspaceMember owner = new WorkspaceMember();
         owner.setWorkspace(savedWorkspace);
         owner.setUser(user);
@@ -60,7 +66,7 @@ public class WorkspaceService {
 
         workspaceMemberRepository.save(owner);
 
-        // Log Activity
+        // Log activity
         activityService.logActivity(
                 savedWorkspace,
                 "Workspace Created",
@@ -75,13 +81,18 @@ public class WorkspaceService {
         );
     }
 
+    // ==========================
     // Get My Workspaces
-    public List<WorkspaceResponse> getMyWorkspaces(Authentication authentication) {
+    // ==========================
+
+    public List<WorkspaceResponse> getMyWorkspaces(
+            Authentication authentication) {
 
         String email = authentication.getName();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
 
         List<Workspace> workspaces =
                 workspaceRepository.findByCreatedById(user.getId());
@@ -94,5 +105,84 @@ public class WorkspaceService {
                         workspace.getCreatedBy().getFullName()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    // ==========================
+    // Update Workspace
+    // ==========================
+
+    public WorkspaceResponse updateWorkspace(
+            Long id,
+            CreateWorkspaceRequest request,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        Workspace workspace = workspaceRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Workspace not found"));
+
+        // Only owner can update
+        if (!workspace.getCreatedBy().getId().equals(user.getId())) {
+            throw new RuntimeException(
+                    "Only the workspace owner can update this workspace."
+            );
+        }
+
+        workspace.setName(request.getName());
+        workspace.setDescription(request.getDescription());
+
+        Workspace updatedWorkspace = workspaceRepository.save(workspace);
+
+        activityService.logActivity(
+                updatedWorkspace,
+                "Workspace Updated",
+                user.getFullName()
+        );
+
+        return new WorkspaceResponse(
+                updatedWorkspace.getId(),
+                updatedWorkspace.getName(),
+                updatedWorkspace.getDescription(),
+                updatedWorkspace.getCreatedBy().getFullName()
+        );
+    }
+
+    // ==========================
+    // Delete Workspace
+    // ==========================
+
+    public void deleteWorkspace(
+            Long id,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        Workspace workspace = workspaceRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Workspace not found"));
+
+        // Only owner can delete
+        if (!workspace.getCreatedBy().getId().equals(user.getId())) {
+            throw new RuntimeException(
+                    "Only the workspace owner can delete this workspace."
+            );
+        }
+
+        activityService.logActivity(
+                workspace,
+                "Workspace Deleted",
+                user.getFullName()
+        );
+
+        workspaceRepository.delete(workspace);
     }
 }

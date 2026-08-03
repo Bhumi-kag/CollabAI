@@ -19,6 +19,10 @@ public class WorkspaceController {
         this.workspaceService = workspaceService;
     }
 
+    // ==========================
+    // Create Workspace
+    // ==========================
+
     @PostMapping
     public WorkspaceResponse createWorkspace(
             @Valid @RequestBody CreateWorkspaceRequest request,
@@ -27,9 +31,45 @@ public class WorkspaceController {
         return workspaceService.createWorkspace(request, authentication);
     }
 
+    // ==========================
+    // Get My Workspaces
+    // ==========================
+
     @GetMapping
-    public List<WorkspaceResponse> getMyWorkspaces(Authentication authentication) {
+    public List<WorkspaceResponse> getMyWorkspaces(
+            Authentication authentication) {
 
         return workspaceService.getMyWorkspaces(authentication);
     }
+
+    // ==========================
+    // Update Workspace
+    // ==========================
+
+    @PutMapping("/{id}")
+    public WorkspaceResponse updateWorkspace(
+            @PathVariable Long id,
+            @Valid @RequestBody CreateWorkspaceRequest request,
+            Authentication authentication) {
+
+        return workspaceService.updateWorkspace(
+                id,
+                request,
+                authentication
+        );
+    }
+
+    // ==========================
+    // Delete Workspace
+    // ==========================
+
+    @DeleteMapping("/{id}")
+    public String deleteWorkspace(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        workspaceService.deleteWorkspace(id, authentication);
+
+        return "Workspace deleted successfully.";
+            }
 }
