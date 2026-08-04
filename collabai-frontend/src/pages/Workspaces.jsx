@@ -6,13 +6,20 @@ import WorkspaceCard from "../components/WorkspaceCard";
 
 import {
   getWorkspaces,
+  createWorkspace,
   selectWorkspace,
 } from "../services/workspaceService";
 
 export default function Workspaces() {
-
   const [workspaces, setWorkspaces] = useState([]);
   const [search, setSearch] = useState("");
+
+  const [showModal, setShowModal] = useState(false);
+
+  const [workspaceData, setWorkspaceData] = useState({
+    name: "",
+    description: "",
+  });
 
   useEffect(() => {
     loadWorkspaces();
@@ -31,6 +38,31 @@ export default function Workspaces() {
   const handleSelect = (workspace) => {
     selectWorkspace(workspace);
     toast.success(`${workspace.name} selected successfully`);
+  };
+
+  const handleCreateWorkspace = async () => {
+    if (!workspaceData.name.trim()) {
+      toast.error("Workspace name is required");
+      return;
+    }
+
+    try {
+      await createWorkspace(workspaceData);
+
+      toast.success("Workspace created successfully");
+
+      setWorkspaceData({
+        name: "",
+        description: "",
+      });
+
+      setShowModal(false);
+
+      loadWorkspaces();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to create workspace");
+    }
   };
 
   const filteredWorkspaces = workspaces.filter((workspace) =>
@@ -86,7 +118,8 @@ export default function Workspaces() {
         </div>
 
         <button
-          className="flex items-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 text-white hover:bg-cyan-700 transition"
+          onClick={() => setShowModal(true)}
+          className="flex items-center justify-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 text-white hover:bg-cyan-700 transition"
         >
           <Plus size={20} />
           New Workspace
@@ -172,6 +205,68 @@ export default function Workspaces() {
             />
 
           ))}
+
+        </div>
+
+      )}
+
+      {/* Create Workspace Modal */}
+
+      {showModal && (
+
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+
+          <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
+
+            <h2 className="text-2xl font-bold mb-6">
+              Create Workspace
+            </h2>
+
+            <input
+              type="text"
+              placeholder="Workspace Name"
+              value={workspaceData.name}
+              onChange={(e) =>
+                setWorkspaceData({
+                  ...workspaceData,
+                  name: e.target.value,
+                })
+              }
+              className="w-full border rounded-lg p-3 mb-4"
+            />
+
+            <textarea
+              rows="4"
+              placeholder="Workspace Description"
+              value={workspaceData.description}
+              onChange={(e) =>
+                setWorkspaceData({
+                  ...workspaceData,
+                  description: e.target.value,
+                })
+              }
+              className="w-full border rounded-lg p-3"
+            />
+
+            <div className="flex justify-end gap-3 mt-6">
+
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleCreateWorkspace}
+                className="px-5 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700"
+              >
+                Create
+              </button>
+
+            </div>
+
+          </div>
 
         </div>
 
