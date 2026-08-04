@@ -4,14 +4,26 @@ import {
   ArrowRight,
 } from "lucide-react";
 
+import { useNavigate } from "react-router-dom";
+
 export default function WorkspaceCard({
   workspace,
   onSelect,
 }) {
+
+  const navigate = useNavigate();
+
+  const handleOpenWorkspace = () => {
+    onSelect(workspace);
+
+    // Navigate to workspace details page
+    navigate(`/workspaces/${workspace.id}`);
+  };
+
   return (
     <div className="group rounded-3xl bg-white shadow-lg border border-slate-200 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden">
 
-      {/* Top Banner */}
+      {/* Header */}
 
       <div className="bg-gradient-to-r from-cyan-500 to-blue-600 p-6 text-white">
 
@@ -49,12 +61,11 @@ export default function WorkspaceCard({
             />
 
             <span>
-              <strong>Owner:</strong> {workspace.ownerName}
+              <strong>Owner:</strong>{" "}
+              {workspace.ownerName || "Unknown"}
             </span>
 
           </div>
-
-          {/* Temporary values until backend provides them */}
 
           <div className="flex justify-between text-sm text-slate-500">
 
@@ -78,9 +89,9 @@ export default function WorkspaceCard({
 
           </div>
 
-          <div className="h-2 rounded-full bg-slate-200">
+          <div className="h-2 rounded-full bg-slate-200 overflow-hidden">
 
-            <div className="h-2 w-0 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600"></div>
+            <div className="h-2 w-0 bg-gradient-to-r from-cyan-500 to-blue-600"></div>
 
           </div>
 
@@ -89,13 +100,11 @@ export default function WorkspaceCard({
         {/* Button */}
 
         <button
-          onClick={() => onSelect(workspace)}
+          onClick={handleOpenWorkspace}
           className="mt-8 w-full flex items-center justify-center gap-2 rounded-xl bg-cyan-600 py-3 text-white font-semibold hover:bg-cyan-700 transition"
         >
           Open Workspace
-
           <ArrowRight size={18} />
-
         </button>
 
       </div>
