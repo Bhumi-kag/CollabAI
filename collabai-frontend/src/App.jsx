@@ -9,6 +9,7 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Members from "./pages/Members";
 import Workspaces from "./pages/Workspaces";
+import WorkspaceDetails from "./pages/WorkspaceDetails";
 
 import MainLayout from "./layouts/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -16,6 +17,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 function App() {
   return (
     <Routes>
+
       {/* Public Routes */}
       <Route path="/" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -29,7 +31,15 @@ function App() {
         }
       >
         <Route path="/dashboard" element={<Dashboard />} />
+
         <Route path="/workspaces" element={<Workspaces />} />
+
+        {/* NEW ROUTE */}
+        <Route
+          path="/workspaces/:id"
+          element={<WorkspaceDetails />}
+        />
+
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/members" element={<Members />} />
         <Route path="/activity" element={<Activity />} />
@@ -38,6 +48,7 @@ function App() {
 
       {/* 404 */}
       <Route path="*" element={<NotFound />} />
+
     </Routes>
   );
 }
