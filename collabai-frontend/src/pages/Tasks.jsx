@@ -1,5 +1,6 @@
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import TaskCard from "../components/TaskCard";
 import CreateTaskModal from "../components/CreateTaskModal";
@@ -15,9 +16,20 @@ export default function Tasks() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
+  const [searchParams] = useSearchParams();
+
   useEffect(() => {
     loadTasks();
-  }, []);
+
+    const status = searchParams.get("status");
+
+    if (status) {
+      setStatusFilter(status);
+    } else {
+      setStatusFilter("ALL");
+    }
+
+  }, [searchParams]);
 
   const loadTasks = async () => {
     try {
@@ -29,10 +41,11 @@ export default function Tasks() {
       }
 
       const data = await getTasksByWorkspace(workspace.id);
+
       setTasks(data);
 
     } catch (error) {
-      console.error("Error loading tasks:", error);
+      console.error(error);
       toast.error("Failed to load tasks.");
     }
   };
@@ -40,7 +53,9 @@ export default function Tasks() {
   const filteredTasks = tasks.filter((task) => {
 
     const matchesSearch =
-      task.title.toLowerCase().includes(search.toLowerCase());
+      task.title
+        .toLowerCase()
+        .includes(search.toLowerCase());
 
     const matchesStatus =
       statusFilter === "ALL" ||
@@ -53,15 +68,25 @@ export default function Tasks() {
   return (
     <div>
 
-      <div className="flex justify-between items-center mb-8">
+      {/* Header */}
 
-        <h1 className="text-4xl font-bold">
-          Tasks
-        </h1>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 mb-8">
+
+        <div>
+
+          <h1 className="text-4xl font-bold">
+            Tasks
+          </h1>
+
+          <p className="text-gray-500 mt-2">
+            Manage and track all your tasks.
+          </p>
+
+        </div>
 
         <button
           onClick={() => setShowModal(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg transition"
+          className="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-3 rounded-xl transition shadow-lg"
         >
           + Create Task
         </button>
@@ -70,33 +95,61 @@ export default function Tasks() {
 
       {/* Search & Filter */}
 
-      <div className="flex flex-col md:flex-row gap-4 mb-8">
+      <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-5 mb-8">
 
-        <input
-          type="text"
-          placeholder="Search task..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border rounded-lg p-3 flex-1"
-        />
+        <div className="flex flex-col lg:flex-row gap-4">
 
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="border rounded-lg p-3"
-        >
-          <option value="ALL">All</option>
-          <option value="TODO">TODO</option>
-          <option value="IN_PROGRESS">IN PROGRESS</option>
-          <option value="DONE">DONE</option>
-        </select>
+          <input
+            type="text"
+            placeholder="🔍 Search tasks..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 border rounded-xl p-3 outline-none focus:ring-2 focus:ring-cyan-500"
+          />
+
+          <select
+            value={statusFilter}
+            onChange={(e) =>
+              setStatusFilter(e.target.value)
+            }
+            className="border rounded-xl p-3"
+          >
+            <option value="ALL">
+              All Tasks
+            </option>
+
+            <option value="TODO">
+              To Do
+            </option>
+
+            <option value="IN_PROGRESS">
+              In Progress
+            </option>
+
+            <option value="DONE">
+              Completed
+            </option>
+
+          </select>
+
+        </div>
 
       </div>
 
+      {/* Tasks */}
+
       {filteredTasks.length === 0 ? (
 
-        <div className="bg-white rounded-xl shadow p-8 text-center text-gray-500">
-          No tasks found.
+        <div className="bg-white rounded-3xl shadow-lg border border-slate-100 p-10 text-center">
+
+          <h2 className="text-2xl font-bold text-gray-700">
+            No Tasks Found
+          </h2>
+
+          <p className="text-gray-500 mt-3">
+            Try changing the search or status filter.
+          </p>
+
         </div>
 
       ) : (
@@ -116,6 +169,8 @@ export default function Tasks() {
         </div>
 
       )}
+
+      {/* Create Task Modal */}
 
       {showModal && (
 

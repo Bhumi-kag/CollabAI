@@ -11,15 +11,20 @@ import {
 
 import DashboardStats from "../components/DashboardStats";
 import DashboardCharts from "../components/DashboardCharts";
+import RecentActivity from "../components/RecentActivity";
+import UpcomingTasks from "../components/UpcomingTasks";
 
 import { getDashboard } from "../services/dashboardService";
+import { getProfile } from "../services/profileService";
 
 export default function Dashboard() {
 
   const [dashboard, setDashboard] = useState(null);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     loadDashboard();
+    loadProfile();
   }, []);
 
   const loadDashboard = async () => {
@@ -27,7 +32,17 @@ export default function Dashboard() {
       const data = await getDashboard();
       setDashboard(data);
     } catch (error) {
-      console.error(error);
+      console.error("Dashboard Error:", error);
+    }
+  };
+
+  const loadProfile = async () => {
+    try {
+      const data = await getProfile();
+      console.log("Profile:", data);
+      setProfile(data);
+    } catch (error) {
+      console.error("Profile Error:", error);
     }
   };
 
@@ -35,79 +50,123 @@ export default function Dashboard() {
     return (
       <div className="flex items-center justify-center h-[70vh]">
         <LoaderCircle
-          className="animate-spin"
-          size={40}
+          className="animate-spin text-cyan-600"
+          size={45}
         />
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="space-y-8">
 
-      <div className="mb-10 rounded-3xl bg-gradient-to-r from-cyan-500 to-blue-600 p-8 text-white shadow-xl">
+      {/* Welcome Banner */}
 
-  <h1 className="text-4xl font-bold">
-    👋 Welcome Back
-  </h1>
+      <div className="rounded-3xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700 p-8 text-white shadow-2xl">
 
-  <p className="mt-3 text-cyan-100 text-lg">
-    Manage your workspaces, collaborate with your team,
-    and stay on top of every task.
-  </p>
+        <h1 className="text-4xl font-bold">
+          👋 Welcome Back
+          {profile && profile.fullName ? `, ${profile.fullName}` : ""}
+        </h1>
 
-</div>
+        <p className="mt-3 text-cyan-100 text-lg">
+          {new Date().toLocaleDateString("en-IN", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })}
+        </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-7">
-
-        <DashboardStats
-          title="Workspaces"
-          value={dashboard.totalWorkspaces}
-          color="text-blue-600"
-          icon={<FolderKanban color="#2563eb" />}
-        />
-
-        <DashboardStats
-          title="Total Tasks"
-          value={dashboard.totalTasks}
-          color="text-violet-600"
-          icon={<ClipboardList color="#7c3aed" />}
-        />
-
-        <DashboardStats
-          title="To Do"
-          value={dashboard.todoTasks}
-          color="text-orange-500"
-          icon={<ListTodo color="#f97316" />}
-        />
-
-        <DashboardStats
-          title="In Progress"
-          value={dashboard.inProgressTasks}
-          color="text-cyan-600"
-          icon={<LoaderCircle color="#0891b2" />}
-        />
-
-        <DashboardStats
-          title="Completed"
-          value={dashboard.completedTasks}
-          color="text-green-600"
-          icon={<CheckCircle color="#16a34a" />}
-        />
-
-        <DashboardStats
-          title="Members"
-          value={dashboard.totalMembers}
-          color="text-red-500"
-          icon={<Users color="#dc2626" />}
-        />
+        <p className="mt-2 text-cyan-200">
+          Let's make today productive 🚀
+        </p>
 
       </div>
 
-      {/* Charts */}
-      <div className="mt-10">
-  <DashboardCharts dashboard={dashboard} />
-</div>
+      {/* Overview */}
+
+      <div>
+
+        <h2 className="text-2xl font-bold text-slate-700 mb-6">
+          Overview
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+          <DashboardStats
+            title="Workspaces"
+            value={dashboard.totalWorkspaces}
+            color="text-blue-600"
+            icon={<FolderKanban color="#2563eb" />}
+            route="/workspaces"
+          />
+
+          <DashboardStats
+            title="Total Tasks"
+            value={dashboard.totalTasks}
+            color="text-violet-600"
+            icon={<ClipboardList color="#7c3aed" />}
+            route="/tasks"
+          />
+
+          <DashboardStats
+            title="To Do"
+            value={dashboard.todoTasks}
+            color="text-orange-500"
+            icon={<ListTodo color="#f97316" />}
+            route="/tasks?status=TODO"
+          />
+
+          <DashboardStats
+            title="In Progress"
+            value={dashboard.inProgressTasks}
+            color="text-cyan-600"
+            icon={<LoaderCircle color="#0891b2" />}
+            route="/tasks?status=IN_PROGRESS"
+          />
+
+          <DashboardStats
+            title="Completed"
+            value={dashboard.completedTasks}
+            color="text-green-600"
+            icon={<CheckCircle color="#16a34a" />}
+            route="/tasks?status=DONE"
+          />
+
+          <DashboardStats
+            title="Members"
+            value={dashboard.totalMembers}
+            color="text-red-500"
+            icon={<Users color="#dc2626" />}
+            route="/members"
+          />
+
+        </div>
+
+      </div>
+
+      {/* Analytics */}
+
+      <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-6">
+
+        <h2 className="text-2xl font-bold text-slate-700 mb-6">
+          📊 Task Analytics
+        </h2>
+
+        <DashboardCharts dashboard={dashboard} />
+
+      </div>
+
+      {/* Bottom Section */}
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+
+        <RecentActivity />
+
+        <UpcomingTasks />
+
+      </div>
 
     </div>
   );

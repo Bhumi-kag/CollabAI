@@ -13,16 +13,15 @@ import {
 } from "recharts";
 
 export default function DashboardCharts({ dashboard }) {
-
   const pieData = [
-    { name: "TODO", value: dashboard.todoTasks },
-    { name: "IN PROGRESS", value: dashboard.inProgressTasks },
-    { name: "DONE", value: dashboard.completedTasks },
+    { name: "To Do", value: dashboard.todoTasks },
+    { name: "In Progress", value: dashboard.inProgressTasks },
+    { name: "Completed", value: dashboard.completedTasks },
   ];
 
   const barData = [
     {
-      name: "Statistics",
+      name: "Overview",
       Workspaces: dashboard.totalWorkspaces,
       Tasks: dashboard.totalTasks,
       Members: dashboard.totalMembers,
@@ -36,12 +35,14 @@ export default function DashboardCharts({ dashboard }) {
   ];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
 
-      <div className="bg-white rounded-2xl shadow p-6">
+      {/* Pie Chart */}
 
-        <h2 className="text-xl font-bold mb-5">
-          Task Status
+      <div className="rounded-3xl bg-white shadow-xl border border-slate-100 p-6 hover:shadow-2xl transition">
+
+        <h2 className="text-2xl font-bold text-slate-700 mb-6">
+          📊 Task Status
         </h2>
 
         <ResponsiveContainer width="100%" height={320}>
@@ -50,19 +51,17 @@ export default function DashboardCharts({ dashboard }) {
 
             <Pie
               data={pieData}
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
               dataKey="value"
+              outerRadius={110}
+              innerRadius={55}
+              paddingAngle={5}
             >
-
               {pieData.map((entry, index) => (
                 <Cell
                   key={index}
                   fill={COLORS[index]}
                 />
               ))}
-
             </Pie>
 
             <Tooltip />
@@ -74,10 +73,12 @@ export default function DashboardCharts({ dashboard }) {
 
       </div>
 
-      <div className="bg-white rounded-2xl shadow p-6">
+      {/* Bar Chart */}
 
-        <h2 className="text-xl font-bold mb-5">
-          Project Statistics
+      <div className="rounded-3xl bg-white shadow-xl border border-slate-100 p-6 hover:shadow-2xl transition">
+
+        <h2 className="text-2xl font-bold text-slate-700 mb-6">
+          📈 Project Statistics
         </h2>
 
         <ResponsiveContainer width="100%" height={320}>
@@ -94,11 +95,23 @@ export default function DashboardCharts({ dashboard }) {
 
             <Legend />
 
-            <Bar dataKey="Workspaces" fill="#2563eb" />
+            <Bar
+              dataKey="Workspaces"
+              radius={[8, 8, 0, 0]}
+              fill="#2563eb"
+            />
 
-            <Bar dataKey="Tasks" fill="#f97316" />
+            <Bar
+              dataKey="Tasks"
+              radius={[8, 8, 0, 0]}
+              fill="#7c3aed"
+            />
 
-            <Bar dataKey="Members" fill="#16a34a" />
+            <Bar
+              dataKey="Members"
+              radius={[8, 8, 0, 0]}
+              fill="#16a34a"
+            />
 
           </BarChart>
 

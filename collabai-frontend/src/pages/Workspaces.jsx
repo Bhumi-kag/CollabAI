@@ -1,5 +1,6 @@
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
+import { Plus, Search, FolderKanban } from "lucide-react";
 
 import WorkspaceCard from "../components/WorkspaceCard";
 
@@ -11,6 +12,7 @@ import {
 export default function Workspaces() {
 
   const [workspaces, setWorkspaces] = useState([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     loadWorkspaces();
@@ -22,44 +24,159 @@ export default function Workspaces() {
       setWorkspaces(data);
     } catch (error) {
       console.error(error);
+      toast.error("Failed to load workspaces");
     }
   };
 
   const handleSelect = (workspace) => {
-
     selectWorkspace(workspace);
-
     toast.success(`${workspace.name} selected successfully`);
-
   };
 
+  const filteredWorkspaces = workspaces.filter((workspace) =>
+    workspace.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
+    <div className="space-y-8">
 
-    <div>
+      {/* Header */}
 
-      <div className="flex justify-between items-center mb-8">
+      <div className="rounded-3xl bg-gradient-to-r from-indigo-600 to-cyan-600 text-white p-8 shadow-xl">
 
-        <h1 className="text-4xl font-bold">
-          Workspaces
-        </h1>
+        <div className="flex items-center gap-4">
+
+          <FolderKanban size={45} />
+
+          <div>
+
+            <h1 className="text-4xl font-bold">
+              Workspaces
+            </h1>
+
+            <p className="text-cyan-100 mt-2">
+              Organize projects, collaborate with your team and manage tasks efficiently.
+            </p>
+
+          </div>
+
+        </div>
 
       </div>
 
-      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-7">
+      {/* Search */}
 
-        {workspaces.map((workspace) => (
+      <div className="flex flex-col md:flex-row gap-4">
 
-          <WorkspaceCard
-            key={workspace.id}
-            workspace={workspace}
-            onSelect={handleSelect}
+        <div className="relative flex-1">
+
+          <Search
+            className="absolute left-4 top-3.5 text-gray-400"
+            size={20}
           />
 
-        ))}
+          <input
+            type="text"
+            placeholder="Search workspace..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-xl border border-slate-200 bg-white pl-12 pr-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          />
+
+        </div>
+
+        <button
+          className="flex items-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 text-white hover:bg-cyan-700 transition"
+        >
+          <Plus size={20} />
+          New Workspace
+        </button>
 
       </div>
 
-    </div>
+      {/* Statistics */}
 
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <div className="rounded-2xl bg-white shadow p-6">
+
+          <p className="text-gray-500">
+            Total Workspaces
+          </p>
+
+          <h2 className="text-4xl font-bold text-cyan-600 mt-2">
+            {workspaces.length}
+          </h2>
+
+        </div>
+
+        <div className="rounded-2xl bg-white shadow p-6">
+
+          <p className="text-gray-500">
+            Selected Workspace
+          </p>
+
+          <h2 className="text-2xl font-bold mt-2">
+            {localStorage.getItem("selectedWorkspace")
+              ? JSON.parse(localStorage.getItem("selectedWorkspace")).name
+              : "None"}
+          </h2>
+
+        </div>
+
+        <div className="rounded-2xl bg-white shadow p-6">
+
+          <p className="text-gray-500">
+            Search Results
+          </p>
+
+          <h2 className="text-4xl font-bold text-indigo-600 mt-2">
+            {filteredWorkspaces.length}
+          </h2>
+
+        </div>
+
+      </div>
+
+      {/* Workspace Cards */}
+
+      {filteredWorkspaces.length === 0 ? (
+
+        <div className="rounded-2xl bg-white p-12 shadow text-center">
+
+          <FolderKanban
+            size={70}
+            className="mx-auto text-slate-300"
+          />
+
+          <h2 className="mt-5 text-2xl font-bold">
+            No Workspaces Found
+          </h2>
+
+          <p className="mt-2 text-slate-500">
+            Create your first workspace to start collaborating.
+          </p>
+
+        </div>
+
+      ) : (
+
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-7">
+
+          {filteredWorkspaces.map((workspace) => (
+
+            <WorkspaceCard
+              key={workspace.id}
+              workspace={workspace}
+              onSelect={handleSelect}
+            />
+
+          ))}
+
+        </div>
+
+      )}
+
+    </div>
   );
 }
