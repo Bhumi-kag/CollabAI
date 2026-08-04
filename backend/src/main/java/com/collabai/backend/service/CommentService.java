@@ -21,14 +21,17 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public CommentService(CommentRepository commentRepository,
                           TaskRepository taskRepository,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          NotificationService notificationService) {
 
         this.commentRepository = commentRepository;
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     // Add Comment
@@ -50,6 +53,17 @@ public class CommentService {
         comment.setUser(user);
 
         Comment savedComment = commentRepository.save(comment);
+
+        // Create notification for the assigned user
+        if (task.getAssignedTo() != null &&
+                !task.getAssignedTo().getId().equals(user.getId())) {
+
+            notificationService.createNotification(
+                    task.getAssignedTo(),
+                    user.getFullName() + " commented on task: " + task.getTitle(),
+                    "COMMENT"
+            );
+        }
 
         return new CommentResponse(
                 savedComment.getId(),

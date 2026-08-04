@@ -24,16 +24,19 @@ public class TaskService {
     private final WorkspaceRepository workspaceRepository;
     private final UserRepository userRepository;
     private final ActivityService activityService;
+    private final NotificationService notificationService;
 
     public TaskService(TaskRepository taskRepository,
                        WorkspaceRepository workspaceRepository,
                        UserRepository userRepository,
-                       ActivityService activityService) {
+                       ActivityService activityService,
+                       NotificationService notificationService) {
 
         this.taskRepository = taskRepository;
         this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
         this.activityService = activityService;
+        this.notificationService = notificationService;
     }
 
     // Create Task
@@ -113,6 +116,13 @@ public class TaskService {
                 updatedTask.getWorkspace(),
                 "Task Assigned: " + updatedTask.getTitle() + " → " + user.getFullName(),
                 user.getFullName()
+        );
+
+        // Create Notification
+        notificationService.createNotification(
+                user,
+                "You have been assigned a new task: " + updatedTask.getTitle(),
+                "TASK_ASSIGNED"
         );
 
         return new TaskResponse(

@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Tasks from "./pages/Tasks";
+import KanbanBoard from "./pages/KanbanBoard";
 import Activity from "./pages/Activity";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -34,13 +35,16 @@ function App() {
 
         <Route path="/workspaces" element={<Workspaces />} />
 
-        {/* NEW ROUTE */}
         <Route
           path="/workspaces/:id"
           element={<WorkspaceDetails />}
         />
 
         <Route path="/tasks" element={<Tasks />} />
+
+        {/* NEW KANBAN ROUTE */}
+        <Route path="/kanban" element={<KanbanBoard />} />
+
         <Route path="/members" element={<Members />} />
         <Route path="/activity" element={<Activity />} />
         <Route path="/profile" element={<Profile />} />

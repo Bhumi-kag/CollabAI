@@ -23,17 +23,20 @@ public class WorkspaceMemberService {
     private final WorkspaceRepository workspaceRepository;
     private final UserRepository userRepository;
     private final PermissionService permissionService;
+    private final NotificationService notificationService;
 
     public WorkspaceMemberService(
             WorkspaceMemberRepository workspaceMemberRepository,
             WorkspaceRepository workspaceRepository,
             UserRepository userRepository,
-            PermissionService permissionService) {
+            PermissionService permissionService,
+            NotificationService notificationService) {
 
         this.workspaceMemberRepository = workspaceMemberRepository;
         this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
         this.permissionService = permissionService;
+        this.notificationService = notificationService;
     }
 
     // Invite Member
@@ -66,6 +69,13 @@ public class WorkspaceMemberService {
         member.setRole(WorkspaceRole.valueOf(request.getRole()));
 
         WorkspaceMember savedMember = workspaceMemberRepository.save(member);
+
+        // Create Notification
+        notificationService.createNotification(
+                user,
+                "You have been added to workspace: " + workspace.getName(),
+                "WORKSPACE_INVITE"
+        );
 
         return new WorkspaceMemberResponse(
                 savedMember.getId(),

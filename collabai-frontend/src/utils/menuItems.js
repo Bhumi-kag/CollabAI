@@ -2,8 +2,8 @@ import {
   LayoutDashboard,
   FolderKanban,
   CheckSquare,
+  KanbanSquare,
   Users,
-  MessageSquare,
   Activity,
   User,
 } from "lucide-react";
@@ -23,6 +23,11 @@ const menuItems = [
     title: "Tasks",
     path: "/tasks",
     icon: CheckSquare,
+  },
+  {
+    title: "Kanban Board",
+    path: "/kanban",
+    icon: KanbanSquare,
   },
   {
     title: "Members",
