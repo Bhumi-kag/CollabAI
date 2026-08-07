@@ -1,14 +1,23 @@
-import { FolderKanban, Users, ClipboardList, ArrowLeft } from "lucide-react";
+import {
+  FolderKanban,
+  Users,
+  ClipboardList,
+  CheckCircle,
+  ArrowLeft,
+} from "lucide-react";
+
 import { Link } from "react-router-dom";
 import { getSelectedWorkspace } from "../services/workspaceService";
 
 export default function WorkspaceDetails() {
+
   const workspace = getSelectedWorkspace();
 
   if (!workspace) {
     return (
-      <div className="p-10 text-center">
-        <h1 className="text-3xl font-bold text-red-600">
+      <div className="text-center py-20">
+
+        <h1 className="text-3xl font-bold">
           Workspace Not Found
         </h1>
 
@@ -18,6 +27,7 @@ export default function WorkspaceDetails() {
         >
           Back to Workspaces
         </Link>
+
       </div>
     );
   }
@@ -41,7 +51,7 @@ export default function WorkspaceDetails() {
 
       {/* Statistics */}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
 
         <div className="rounded-2xl bg-white shadow p-6 text-center">
 
@@ -51,7 +61,7 @@ export default function WorkspaceDetails() {
           />
 
           <h2 className="mt-4 text-3xl font-bold">
-            0
+            {workspace.memberCount}
           </h2>
 
           <p className="text-gray-500">
@@ -68,11 +78,28 @@ export default function WorkspaceDetails() {
           />
 
           <h2 className="mt-4 text-3xl font-bold">
-            0
+            {workspace.taskCount}
           </h2>
 
           <p className="text-gray-500">
-            Tasks
+            Total Tasks
+          </p>
+
+        </div>
+
+        <div className="rounded-2xl bg-white shadow p-6 text-center">
+
+          <CheckCircle
+            size={40}
+            className="mx-auto text-green-600"
+          />
+
+          <h2 className="mt-4 text-3xl font-bold">
+            {workspace.completedTaskCount}
+          </h2>
+
+          <p className="text-gray-500">
+            Completed
           </p>
 
         </div>
@@ -81,15 +108,15 @@ export default function WorkspaceDetails() {
 
           <FolderKanban
             size={40}
-            className="mx-auto text-green-600"
+            className="mx-auto text-orange-600"
           />
 
           <h2 className="mt-4 text-3xl font-bold">
-            Active
+            {workspace.progress}%
           </h2>
 
           <p className="text-gray-500">
-            Status
+            Progress
           </p>
 
         </div>
@@ -100,7 +127,7 @@ export default function WorkspaceDetails() {
 
       <div className="rounded-2xl bg-white shadow p-8">
 
-        <h2 className="text-2xl font-bold mb-4">
+        <h2 className="text-2xl font-bold mb-6">
           Workspace Information
         </h2>
 
@@ -117,32 +144,41 @@ export default function WorkspaceDetails() {
 
           <p>
             <strong>Owner:</strong>{" "}
-            {workspace.ownerName || "Unknown"}
+            {workspace.ownerName}
           </p>
 
         </div>
 
       </div>
 
-      {/* Coming Soon */}
+      {/* Progress */}
 
       <div className="rounded-2xl bg-white shadow p-8">
 
         <h2 className="text-2xl font-bold mb-4">
-          Upcoming Features
+          Workspace Progress
         </h2>
 
-        <ul className="list-disc ml-6 space-y-2 text-gray-600">
-          <li>Add Tasks</li>
-          <li>Invite Members</li>
-          <li>Activity Timeline</li>
-          <li>Workspace Settings</li>
-          <li>Progress Tracking</li>
-        </ul>
+        <div className="flex justify-between mb-2">
+
+          <span>Completion</span>
+
+          <span>{workspace.progress}%</span>
+
+        </div>
+
+        <div className="h-4 rounded-full bg-gray-200 overflow-hidden">
+
+          <div
+            className="h-4 bg-gradient-to-r from-cyan-500 to-blue-600"
+            style={{
+              width: `${workspace.progress}%`,
+            }}
+          />
+
+        </div>
 
       </div>
-
-      {/* Back Button */}
 
       <Link
         to="/workspaces"

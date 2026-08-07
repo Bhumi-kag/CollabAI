@@ -14,7 +14,12 @@ public class TaskResponse {
     private TaskPriority priority;
     private LocalDate dueDate;
     private String workspaceName;
+
+    // display name
     private String assignedTo;
+
+    // NEW
+    private Long assignedUserId;
 
     public TaskResponse() {
     }
@@ -26,7 +31,8 @@ public class TaskResponse {
                         TaskPriority priority,
                         LocalDate dueDate,
                         String workspaceName,
-                        String assignedTo) {
+                        String assignedTo,
+                        Long assignedUserId) {
 
         this.id = id;
         this.title = title;
@@ -36,6 +42,7 @@ public class TaskResponse {
         this.dueDate = dueDate;
         this.workspaceName = workspaceName;
         this.assignedTo = assignedTo;
+        this.assignedUserId = assignedUserId;
     }
 
     public Long getId() {
@@ -100,5 +107,13 @@ public class TaskResponse {
 
     public void setAssignedTo(String assignedTo) {
         this.assignedTo = assignedTo;
+    }
+
+    public Long getAssignedUserId() {
+        return assignedUserId;
+    }
+
+    public void setAssignedUserId(Long assignedUserId) {
+        this.assignedUserId = assignedUserId;
     }
 }

@@ -20,8 +20,12 @@ public class AuthController {
         return userService.registerUser(request);
     }
 
-    @PostMapping("/login")
+   @PostMapping("/login")
 public String login(@Valid @RequestBody LoginRequest request) {
+
+    System.out.println("LOGIN CONTROLLER HIT");
+    System.out.println("EMAIL : " + request.getEmail());
+
     return userService.loginUser(request);
 }
 }

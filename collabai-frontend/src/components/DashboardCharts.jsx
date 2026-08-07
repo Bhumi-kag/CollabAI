@@ -13,6 +13,7 @@ import {
 } from "recharts";
 
 export default function DashboardCharts({ dashboard }) {
+
   const pieData = [
     { name: "To Do", value: dashboard.todoTasks },
     { name: "In Progress", value: dashboard.inProgressTasks },
@@ -35,25 +36,22 @@ export default function DashboardCharts({ dashboard }) {
   ];
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
-      {/* Pie Chart */}
+      <div className="rounded-3xl bg-white shadow-xl border border-slate-100 p-4 sm:p-6">
 
-      <div className="rounded-3xl bg-white shadow-xl border border-slate-100 p-6 hover:shadow-2xl transition">
-
-        <h2 className="text-2xl font-bold text-slate-700 mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-700 mb-5">
           📊 Task Status
         </h2>
 
-        <ResponsiveContainer width="100%" height={320}>
-
+        <ResponsiveContainer width="100%" height={300}>
           <PieChart>
 
             <Pie
               data={pieData}
               dataKey="value"
-              outerRadius={110}
-              innerRadius={55}
+              outerRadius={90}
+              innerRadius={45}
               paddingAngle={5}
             >
               {pieData.map((entry, index) => (
@@ -68,21 +66,17 @@ export default function DashboardCharts({ dashboard }) {
             <Legend />
 
           </PieChart>
-
         </ResponsiveContainer>
 
       </div>
 
-      {/* Bar Chart */}
+      <div className="rounded-3xl bg-white shadow-xl border border-slate-100 p-4 sm:p-6">
 
-      <div className="rounded-3xl bg-white shadow-xl border border-slate-100 p-6 hover:shadow-2xl transition">
-
-        <h2 className="text-2xl font-bold text-slate-700 mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-700 mb-5">
           📈 Project Statistics
         </h2>
 
-        <ResponsiveContainer width="100%" height={320}>
-
+        <ResponsiveContainer width="100%" height={300}>
           <BarChart data={barData}>
 
             <CartesianGrid strokeDasharray="3 3" />
@@ -97,24 +91,23 @@ export default function DashboardCharts({ dashboard }) {
 
             <Bar
               dataKey="Workspaces"
-              radius={[8, 8, 0, 0]}
               fill="#2563eb"
+              radius={[8,8,0,0]}
             />
 
             <Bar
               dataKey="Tasks"
-              radius={[8, 8, 0, 0]}
               fill="#7c3aed"
+              radius={[8,8,0,0]}
             />
 
             <Bar
               dataKey="Members"
-              radius={[8, 8, 0, 0]}
               fill="#16a34a"
+              radius={[8,8,0,0]}
             />
 
           </BarChart>
-
         </ResponsiveContainer>
 
       </div>

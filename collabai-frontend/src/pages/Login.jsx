@@ -13,30 +13,37 @@ export default function Login() {
   const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    setLoading(true);
-    setError("");
+  setLoading(true);
+  setError("");
 
-    try {
-      await loginUser({
-        email,
-        password,
-      });
+  try {
+    await loginUser({
+      email,
+      password,
+    });
 
-      navigate("/dashboard");
-    } catch (err) {
-      console.error(err);
+    navigate("/dashboard");
 
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError("Invalid email or password");
-      }
-    } finally {
-      setLoading(false);
+  } catch (err) {
+
+    console.log("FULL ERROR:", err);
+    console.log("Status:", err.response?.status);
+    console.log("Data:", err.response?.data);
+
+    if (err.response?.data?.message) {
+      setError(err.response.data.message);
+    } else if (typeof err.response?.data === "string") {
+      setError(err.response.data);
+    } else {
+      setError("Login failed");
     }
-  };
+
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 px-6">

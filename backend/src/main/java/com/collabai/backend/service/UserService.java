@@ -2,12 +2,16 @@ package com.collabai.backend.service;
 
 import com.collabai.backend.dto.LoginRequest;
 import com.collabai.backend.dto.RegisterRequest;
+import com.collabai.backend.dto.UpdateProfileRequest;
+import com.collabai.backend.dto.UserResponse;
 import com.collabai.backend.entity.User;
+import com.collabai.backend.exception.ResourceNotFoundException;
 import com.collabai.backend.repository.UserRepository;
+import com.collabai.backend.security.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.collabai.backend.security.JwtService;
 
 @Service
 public class UserService {
@@ -17,6 +21,13 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtService jwtService;
+
+    // ==========================
+    // Register
+    // ==========================
 
     public String registerUser(RegisterRequest request) {
 
@@ -28,8 +39,6 @@ public class UserService {
 
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
-
-        // Encrypt password before saving
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         userRepository.save(user);
@@ -37,25 +46,63 @@ public class UserService {
         return "User Registered Successfully!";
     }
 
+    // ==========================
+    // Login
+    // ==========================
+
     public String loginUser(LoginRequest request) {
 
-    User user = userRepository.findByEmail(request.getEmail())
-            .orElse(null);
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElse(null);
 
-    if (user == null) {
-        return "User not found!";
+        if (user == null) {
+            return "User not found!";
+        }
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            return "Invalid password!";
+        }
+
+        return jwtService.generateToken(user.getEmail());
     }
 
-    if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-        return "Invalid password!";
+    // ==========================
+    // Get Profile
+    // ==========================
+
+    public UserResponse getProfile(Authentication authentication) {
+
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        return new UserResponse(
+                user.getId(),
+                user.getFullName(),
+                user.getEmail()
+        );
     }
 
-    String token = jwtService.generateToken(user.getEmail());
+    // ==========================
+    // Update Profile
+    // ==========================
 
-return token;
+    public UserResponse updateProfile(
+            UpdateProfileRequest request,
+            Authentication authentication) {
+
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        user.setFullName(request.getFullName());
+
+        User updatedUser = userRepository.save(user);
+
+        return new UserResponse(
+                updatedUser.getId(),
+                updatedUser.getFullName(),
+                updatedUser.getEmail()
+        );
+    }
 }
-
-@Autowired
-private JwtService jwtService;
-}
-

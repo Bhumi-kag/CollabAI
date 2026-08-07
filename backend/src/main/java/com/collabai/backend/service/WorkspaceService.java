@@ -5,8 +5,10 @@ import com.collabai.backend.dto.WorkspaceResponse;
 import com.collabai.backend.entity.User;
 import com.collabai.backend.entity.Workspace;
 import com.collabai.backend.entity.WorkspaceMember;
+import com.collabai.backend.enums.TaskStatus;
 import com.collabai.backend.enums.WorkspaceRole;
 import com.collabai.backend.exception.ResourceNotFoundException;
+import com.collabai.backend.repository.TaskRepository;
 import com.collabai.backend.repository.UserRepository;
 import com.collabai.backend.repository.WorkspaceMemberRepository;
 import com.collabai.backend.repository.WorkspaceRepository;
@@ -22,17 +24,20 @@ public class WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
     private final UserRepository userRepository;
     private final WorkspaceMemberRepository workspaceMemberRepository;
+    private final TaskRepository taskRepository;
     private final ActivityService activityService;
 
     public WorkspaceService(
             WorkspaceRepository workspaceRepository,
             UserRepository userRepository,
             WorkspaceMemberRepository workspaceMemberRepository,
+            TaskRepository taskRepository,
             ActivityService activityService) {
 
         this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
         this.workspaceMemberRepository = workspaceMemberRepository;
+        this.taskRepository = taskRepository;
         this.activityService = activityService;
     }
 
@@ -58,7 +63,6 @@ public class WorkspaceService {
 
         Workspace savedWorkspace = workspaceRepository.save(workspace);
 
-        // Add creator as OWNER
         WorkspaceMember owner = new WorkspaceMember();
         owner.setWorkspace(savedWorkspace);
         owner.setUser(user);
@@ -66,19 +70,13 @@ public class WorkspaceService {
 
         workspaceMemberRepository.save(owner);
 
-        // Log activity
         activityService.logActivity(
                 savedWorkspace,
                 "Workspace Created",
                 user.getFullName()
         );
 
-        return new WorkspaceResponse(
-                savedWorkspace.getId(),
-                savedWorkspace.getName(),
-                savedWorkspace.getDescription(),
-                savedWorkspace.getCreatedBy().getFullName()
-        );
+        return buildWorkspaceResponse(savedWorkspace);
     }
 
     // ==========================
@@ -98,12 +96,7 @@ public class WorkspaceService {
                 workspaceRepository.findByCreatedById(user.getId());
 
         return workspaces.stream()
-                .map(workspace -> new WorkspaceResponse(
-                        workspace.getId(),
-                        workspace.getName(),
-                        workspace.getDescription(),
-                        workspace.getCreatedBy().getFullName()
-                ))
+                .map(this::buildWorkspaceResponse)
                 .collect(Collectors.toList());
     }
 
@@ -126,7 +119,6 @@ public class WorkspaceService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Workspace not found"));
 
-        // Only owner can update
         if (!workspace.getCreatedBy().getId().equals(user.getId())) {
             throw new RuntimeException(
                     "Only the workspace owner can update this workspace."
@@ -144,12 +136,7 @@ public class WorkspaceService {
                 user.getFullName()
         );
 
-        return new WorkspaceResponse(
-                updatedWorkspace.getId(),
-                updatedWorkspace.getName(),
-                updatedWorkspace.getDescription(),
-                updatedWorkspace.getCreatedBy().getFullName()
-        );
+        return buildWorkspaceResponse(updatedWorkspace);
     }
 
     // ==========================
@@ -170,7 +157,6 @@ public class WorkspaceService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Workspace not found"));
 
-        // Only owner can delete
         if (!workspace.getCreatedBy().getId().equals(user.getId())) {
             throw new RuntimeException(
                     "Only the workspace owner can delete this workspace."
@@ -184,5 +170,39 @@ public class WorkspaceService {
         );
 
         workspaceRepository.delete(workspace);
+    }
+
+    // ==========================
+    // Build Workspace Response
+    // ==========================
+
+    private WorkspaceResponse buildWorkspaceResponse(Workspace workspace) {
+
+        long memberCount =
+                workspaceMemberRepository.findByWorkspaceId(workspace.getId()).size();
+
+        long taskCount =
+                taskRepository.findByWorkspaceId(workspace.getId()).size();
+
+        long completedTaskCount =
+                taskRepository.findByWorkspaceId(workspace.getId())
+                        .stream()
+                        .filter(task -> task.getStatus() == TaskStatus.DONE)
+                        .count();
+
+        int progress = taskCount == 0
+                ? 0
+                : (int) ((completedTaskCount * 100) / taskCount);
+
+        return new WorkspaceResponse(
+                workspace.getId(),
+                workspace.getName(),
+                workspace.getDescription(),
+                workspace.getCreatedBy().getFullName(),
+                memberCount,
+                taskCount,
+                completedTaskCount,
+                progress
+        );
     }
 }

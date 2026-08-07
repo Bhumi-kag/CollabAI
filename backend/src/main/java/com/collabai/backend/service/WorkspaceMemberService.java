@@ -1,4 +1,5 @@
 package com.collabai.backend.service;
+import com.collabai.backend.exception.MemberAlreadyExistsException;
 
 import com.collabai.backend.dto.InviteMemberRequest;
 import com.collabai.backend.dto.WorkspaceMemberResponse;
@@ -57,10 +58,11 @@ public class WorkspaceMemberService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         workspaceMemberRepository
-                .findByWorkspaceIdAndUserId(workspace.getId(), user.getId())
-                .ifPresent(member -> {
-                    throw new RuntimeException("User is already a member of this workspace");
-                });
+        .findByWorkspaceIdAndUserId(workspace.getId(), user.getId())
+        .ifPresent(member -> {
+            throw new MemberAlreadyExistsException(
+                    "User is already a member of this workspace");
+        });
 
         WorkspaceMember member = new WorkspaceMember();
 

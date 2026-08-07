@@ -23,9 +23,19 @@ export default function TaskCard({ task, onStatusUpdated }) {
   const [members, setMembers] = useState([]);
   const [showComments, setShowComments] = useState(false);
 
+  const [selectedMember, setSelectedMember] = useState("");
+
   useEffect(() => {
     loadMembers();
   }, []);
+
+  useEffect(() => {
+    if (task.assignedUserId) {
+      setSelectedMember(task.assignedUserId.toString());
+    } else {
+      setSelectedMember("");
+    }
+  }, [task]);
 
   const loadMembers = async () => {
     try {
@@ -52,12 +62,19 @@ export default function TaskCard({ task, onStatusUpdated }) {
   };
 
   const handleAssign = async (e) => {
+
+    const memberId = e.target.value;
+
+    setSelectedMember(memberId);
+
     try {
-      await assignTask(task.id, Number(e.target.value));
+
+      await assignTask(task.id, Number(memberId));
 
       toast.success("Task assigned successfully!");
 
       onStatusUpdated();
+
     } catch (error) {
       console.error(error);
       toast.error("Failed to assign member.");
@@ -78,59 +95,71 @@ export default function TaskCard({ task, onStatusUpdated }) {
 
   return (
     <>
-      <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-7 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+      <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-5 sm:p-6 lg:p-7 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
 
         {/* Header */}
 
-        <div className="flex justify-between items-start">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
 
-          <div>
+          <div className="min-w-0">
 
-            <h2 className="text-2xl font-bold text-slate-800">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 break-words">
               {task.title}
             </h2>
 
-            <p className="text-gray-500 mt-2">
+            <p className="text-gray-500 mt-2 break-words">
               {task.description}
             </p>
 
           </div>
 
           <span
-            className={`px-4 py-2 rounded-full text-sm font-semibold ${statusColor[task.status]}`}
+            className={`self-start px-4 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap ${statusColor[task.status]}`}
           >
-            {task.status}
+            {task.status.replace("_", " ")}
           </span>
 
         </div>
 
         {/* Details */}
 
-        <div className="mt-6 space-y-3 text-gray-700">
+        <div className="mt-6 space-y-4 text-gray-700">
 
           <div className="flex items-center gap-3">
-            <Flag size={18} className={priorityColor[task.priority]} />
+            <Flag
+              size={18}
+              className={priorityColor[task.priority]}
+            />
             <span>
               <strong>Priority:</strong> {task.priority}
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            <CalendarDays size={18} className="text-cyan-600" />
+            <CalendarDays
+              size={18}
+              className="text-cyan-600"
+            />
             <span>
               <strong>Due:</strong> {task.dueDate}
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            <FolderKanban size={18} className="text-violet-600" />
+            <FolderKanban
+              size={18}
+              className="text-violet-600"
+            />
             <span>
               <strong>Workspace:</strong> {task.workspaceName}
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            <UserCircle size={18} className="text-blue-600" />
+            <UserCircle
+              size={18}
+              className="text-blue-600"
+            />
             <span>
               <strong>Assigned:</strong>{" "}
               {task.assignedTo ?? "Not Assigned"}
@@ -159,7 +188,7 @@ export default function TaskCard({ task, onStatusUpdated }) {
 
         </div>
 
-        {/* Assign */}
+        {/* Assign Member */}
 
         <div className="mt-5">
 
@@ -168,11 +197,14 @@ export default function TaskCard({ task, onStatusUpdated }) {
           </label>
 
           <select
-            defaultValue=""
+            value={selectedMember}
             onChange={handleAssign}
             className="w-full mt-2 rounded-xl border border-gray-300 p-3 focus:ring-2 focus:ring-cyan-500 outline-none"
           >
-            <option value="">Select Member</option>
+
+            <option value="">
+              Select Member
+            </option>
 
             {members.map((member) => (
               <option

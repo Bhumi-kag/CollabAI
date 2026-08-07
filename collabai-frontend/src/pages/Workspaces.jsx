@@ -70,23 +70,26 @@ export default function Workspaces() {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
 
       {/* Header */}
 
-      <div className="rounded-3xl bg-gradient-to-r from-indigo-600 to-cyan-600 text-white p-8 shadow-xl">
+      <div className="rounded-3xl bg-gradient-to-r from-indigo-600 to-cyan-600 text-white p-5 sm:p-6 lg:p-8 shadow-xl">
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
 
-          <FolderKanban size={45} />
+          <FolderKanban
+            size={55}
+            className="flex-shrink-0"
+          />
 
           <div>
 
-            <h1 className="text-4xl font-bold">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">
               Workspaces
             </h1>
 
-            <p className="text-cyan-100 mt-2">
+            <p className="text-cyan-100 mt-2 text-sm sm:text-base">
               Organize projects, collaborate with your team and manage tasks efficiently.
             </p>
 
@@ -98,7 +101,7 @@ export default function Workspaces() {
 
       {/* Search */}
 
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col lg:flex-row gap-4">
 
         <div className="relative flex-1">
 
@@ -119,7 +122,7 @@ export default function Workspaces() {
 
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center justify-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 text-white hover:bg-cyan-700 transition"
+          className="flex items-center justify-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 text-white hover:bg-cyan-700 transition w-full lg:w-auto"
         >
           <Plus size={20} />
           New Workspace
@@ -129,27 +132,27 @@ export default function Workspaces() {
 
       {/* Statistics */}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
 
-        <div className="rounded-2xl bg-white shadow p-6">
+        <div className="rounded-2xl bg-white shadow p-5">
 
           <p className="text-gray-500">
             Total Workspaces
           </p>
 
-          <h2 className="text-4xl font-bold text-cyan-600 mt-2">
+          <h2 className="text-3xl sm:text-4xl font-bold text-cyan-600 mt-2">
             {workspaces.length}
           </h2>
 
         </div>
 
-        <div className="rounded-2xl bg-white shadow p-6">
+        <div className="rounded-2xl bg-white shadow p-5">
 
           <p className="text-gray-500">
             Selected Workspace
           </p>
 
-          <h2 className="text-2xl font-bold mt-2">
+          <h2 className="text-lg sm:text-xl font-bold mt-2 break-words">
             {localStorage.getItem("selectedWorkspace")
               ? JSON.parse(localStorage.getItem("selectedWorkspace")).name
               : "None"}
@@ -157,13 +160,13 @@ export default function Workspaces() {
 
         </div>
 
-        <div className="rounded-2xl bg-white shadow p-6">
+        <div className="rounded-2xl bg-white shadow p-5">
 
           <p className="text-gray-500">
             Search Results
           </p>
 
-          <h2 className="text-4xl font-bold text-indigo-600 mt-2">
+          <h2 className="text-3xl sm:text-4xl font-bold text-indigo-600 mt-2">
             {filteredWorkspaces.length}
           </h2>
 
@@ -175,14 +178,14 @@ export default function Workspaces() {
 
       {filteredWorkspaces.length === 0 ? (
 
-        <div className="rounded-2xl bg-white p-12 shadow text-center">
+        <div className="rounded-2xl bg-white p-8 sm:p-12 shadow text-center">
 
           <FolderKanban
             size={70}
             className="mx-auto text-slate-300"
           />
 
-          <h2 className="mt-5 text-2xl font-bold">
+          <h2 className="mt-5 text-xl sm:text-2xl font-bold">
             No Workspaces Found
           </h2>
 
@@ -194,7 +197,7 @@ export default function Workspaces() {
 
       ) : (
 
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-7">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
           {filteredWorkspaces.map((workspace) => (
 
@@ -214,9 +217,9 @@ export default function Workspaces() {
 
       {showModal && (
 
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
 
-          <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 w-full max-w-md shadow-2xl">
 
             <h2 className="text-2xl font-bold mb-6">
               Create Workspace
@@ -248,18 +251,18 @@ export default function Workspaces() {
               className="w-full border rounded-lg p-3"
             />
 
-            <div className="flex justify-end gap-3 mt-6">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-6">
 
               <button
                 onClick={() => setShowModal(false)}
-                className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+                className="w-full sm:w-auto px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
               >
                 Cancel
               </button>
 
               <button
                 onClick={handleCreateWorkspace}
-                className="px-5 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700"
+                className="w-full sm:w-auto px-5 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700"
               >
                 Create
               </button>

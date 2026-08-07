@@ -8,8 +8,12 @@ import java.util.Optional;
 
 public interface WorkspaceMemberRepository extends JpaRepository<WorkspaceMember, Long> {
 
+    // Get all members of a workspace
     List<WorkspaceMember> findByWorkspaceId(Long workspaceId);
 
+    // Check if a user is already a member
     Optional<WorkspaceMember> findByWorkspaceIdAndUserId(Long workspaceId, Long userId);
 
+    // Workspace Statistics
+    long countByWorkspaceId(Long workspaceId);
 }

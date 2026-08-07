@@ -23,9 +23,9 @@ const upcomingTasks = [
 
 export default function UpcomingTasks() {
   return (
-    <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-6">
+    <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-5 sm:p-6">
 
-      <h2 className="text-2xl font-bold text-slate-700 mb-6">
+      <h2 className="text-xl sm:text-2xl font-bold text-slate-700 mb-5">
         📅 Upcoming Tasks
       </h2>
 
@@ -35,12 +35,12 @@ export default function UpcomingTasks() {
 
           <div
             key={task.id}
-            className="flex items-center justify-between rounded-2xl border border-slate-100 p-4 hover:bg-slate-50 transition"
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-slate-100 p-4 hover:bg-slate-50 transition"
           >
 
-            <div>
+            <div className="min-w-0">
 
-              <h3 className="font-semibold">
+              <h3 className="font-semibold break-words">
                 {task.title}
               </h3>
 
@@ -52,7 +52,7 @@ export default function UpcomingTasks() {
             </div>
 
             <span
-              className={`px-3 py-1 rounded-full text-sm font-semibold ${
+              className={`self-start sm:self-center px-3 py-1 rounded-full text-sm font-semibold ${
                 task.priority === "High"
                   ? "bg-red-100 text-red-600"
                   : task.priority === "Medium"

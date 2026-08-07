@@ -38,37 +38,43 @@ const activities = [
 
 export default function RecentActivity() {
   return (
-    <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-6">
+    <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-5 sm:p-6">
 
-      <h2 className="text-2xl font-bold text-slate-700 mb-6">
+      <h2 className="text-xl sm:text-2xl font-bold text-slate-700 mb-5">
         🔥 Recent Activity
       </h2>
 
-      <div className="space-y-5">
+      <div className="space-y-4">
 
         {activities.map((activity) => (
+
           <div
             key={activity.id}
-            className="flex items-center gap-4 border-b last:border-none pb-4"
+            className="flex items-start gap-3 border-b last:border-none pb-4"
           >
-            <div className="bg-slate-100 rounded-xl p-3">
+
+            <div className="bg-slate-100 rounded-xl p-3 flex-shrink-0">
               {activity.icon}
             </div>
 
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
+
               <h3 className="font-semibold">
                 {activity.title}
               </h3>
 
-              <p className="text-gray-500 text-sm">
+              <p className="text-sm text-gray-500 break-words">
                 {activity.description}
               </p>
+
             </div>
 
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-gray-400 whitespace-nowrap">
               {activity.time}
             </span>
+
           </div>
+
         ))}
 
       </div>

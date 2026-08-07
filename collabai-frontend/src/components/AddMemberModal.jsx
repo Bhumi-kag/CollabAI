@@ -5,6 +5,7 @@ import { addMember } from "../services/memberService";
 import { getSelectedWorkspace } from "../services/workspaceService";
 
 export default function AddMemberModal({ onClose, onMemberAdded }) {
+
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("MEMBER");
 
@@ -12,6 +13,7 @@ export default function AddMemberModal({ onClose, onMemberAdded }) {
     e.preventDefault();
 
     try {
+
       const workspace = getSelectedWorkspace();
 
       await addMember({
@@ -24,18 +26,29 @@ export default function AddMemberModal({ onClose, onMemberAdded }) {
 
       onMemberAdded();
       onClose();
+
     } catch (error) {
+
       console.error(error);
-      toast.error("Failed to add member.");
+
+      const message =
+        error.response?.data?.message ||
+        "Failed to add member.";
+
+      toast.error(message);
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+
       <div className="bg-white rounded-2xl shadow-xl w-[450px] p-6">
 
         <div className="flex justify-between items-center mb-5">
-          <h2 className="text-2xl font-bold">Add Member</h2>
+
+          <h2 className="text-2xl font-bold">
+            Add Member
+          </h2>
 
           <button
             onClick={onClose}
@@ -43,9 +56,13 @@ export default function AddMemberModal({ onClose, onMemberAdded }) {
           >
             ✕
           </button>
+
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
 
           <input
             type="email"
@@ -66,6 +83,7 @@ export default function AddMemberModal({ onClose, onMemberAdded }) {
           </select>
 
           <button
+            type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg"
           >
             Add Member
@@ -74,6 +92,7 @@ export default function AddMemberModal({ onClose, onMemberAdded }) {
         </form>
 
       </div>
+
     </div>
   );
 }

@@ -57,7 +57,6 @@ public class TaskService {
 
         Task savedTask = taskRepository.save(task);
 
-        // Log Activity
         activityService.logActivity(
                 workspace,
                 "Task Created: " + savedTask.getTitle(),
@@ -72,6 +71,7 @@ public class TaskService {
                 savedTask.getPriority(),
                 savedTask.getDueDate(),
                 savedTask.getWorkspace().getName(),
+                null,
                 null
         );
     }
@@ -92,6 +92,9 @@ public class TaskService {
                         task.getWorkspace().getName(),
                         task.getAssignedTo() != null
                                 ? task.getAssignedTo().getFullName()
+                                : null,
+                        task.getAssignedTo() != null
+                                ? task.getAssignedTo().getId()
                                 : null
                 ))
                 .collect(Collectors.toList());
@@ -111,14 +114,12 @@ public class TaskService {
 
         Task updatedTask = taskRepository.save(task);
 
-        // Log Activity
         activityService.logActivity(
                 updatedTask.getWorkspace(),
                 "Task Assigned: " + updatedTask.getTitle() + " → " + user.getFullName(),
                 user.getFullName()
         );
 
-        // Create Notification
         notificationService.createNotification(
                 user,
                 "You have been assigned a new task: " + updatedTask.getTitle(),
@@ -133,7 +134,8 @@ public class TaskService {
                 updatedTask.getPriority(),
                 updatedTask.getDueDate(),
                 updatedTask.getWorkspace().getName(),
-                updatedTask.getAssignedTo().getFullName()
+                updatedTask.getAssignedTo().getFullName(),
+                updatedTask.getAssignedTo().getId()
         );
     }
 
@@ -148,7 +150,6 @@ public class TaskService {
 
         Task updatedTask = taskRepository.save(task);
 
-        // Log Activity
         activityService.logActivity(
                 updatedTask.getWorkspace(),
                 "Task Status Changed to " + updatedTask.getStatus(),
@@ -156,6 +157,16 @@ public class TaskService {
                         ? updatedTask.getAssignedTo().getFullName()
                         : "System"
         );
+
+        if (updatedTask.getAssignedTo() != null) {
+            notificationService.createNotification(
+                    updatedTask.getAssignedTo(),
+                    "Task '" + updatedTask.getTitle()
+                            + "' status changed to "
+                            + updatedTask.getStatus(),
+                    "TASK_STATUS"
+            );
+        }
 
         return new TaskResponse(
                 updatedTask.getId(),
@@ -167,6 +178,9 @@ public class TaskService {
                 updatedTask.getWorkspace().getName(),
                 updatedTask.getAssignedTo() != null
                         ? updatedTask.getAssignedTo().getFullName()
+                        : null,
+                updatedTask.getAssignedTo() != null
+                        ? updatedTask.getAssignedTo().getId()
                         : null
         );
     }

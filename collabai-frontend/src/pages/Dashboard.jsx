@@ -39,7 +39,6 @@ export default function Dashboard() {
   const loadProfile = async () => {
     try {
       const data = await getProfile();
-      console.log("Profile:", data);
       setProfile(data);
     } catch (error) {
       console.error("Profile Error:", error);
@@ -58,18 +57,18 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
 
       {/* Welcome Banner */}
 
-      <div className="rounded-3xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700 p-8 text-white shadow-2xl">
+      <div className="rounded-3xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700 p-5 sm:p-6 lg:p-8 text-white shadow-2xl">
 
-        <h1 className="text-4xl font-bold">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
           👋 Welcome Back
-          {profile && profile.fullName ? `, ${profile.fullName}` : ""}
+          {profile?.fullName ? `, ${profile.fullName}` : ""}
         </h1>
 
-        <p className="mt-3 text-cyan-100 text-lg">
+        <p className="mt-3 text-cyan-100 text-sm sm:text-base lg:text-lg">
           {new Date().toLocaleDateString("en-IN", {
             weekday: "long",
             day: "numeric",
@@ -78,7 +77,7 @@ export default function Dashboard() {
           })}
         </p>
 
-        <p className="mt-2 text-cyan-200">
+        <p className="mt-2 text-cyan-200 text-sm sm:text-base">
           Let's make today productive 🚀
         </p>
 
@@ -88,11 +87,11 @@ export default function Dashboard() {
 
       <div>
 
-        <h2 className="text-2xl font-bold text-slate-700 mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-700 mb-5">
           Overview
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
 
           <DashboardStats
             title="Workspaces"
@@ -148,9 +147,9 @@ export default function Dashboard() {
 
       {/* Analytics */}
 
-      <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-6">
+      <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-4 sm:p-6 overflow-x-auto">
 
-        <h2 className="text-2xl font-bold text-slate-700 mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-700 mb-6">
           📊 Task Analytics
         </h2>
 
@@ -160,7 +159,7 @@ export default function Dashboard() {
 
       {/* Bottom Section */}
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         <RecentActivity />
 
